@@ -8,7 +8,6 @@
  *
  * Created on Jul 9, 2011, 8:46:47 AM
  */
-
 package hotel;
 
 import javax.swing.JOptionPane;
@@ -19,26 +18,25 @@ import javax.swing.table.DefaultTableModel;
  * @author Indra Ginanjar
  */
 public class TamuJFrame_TabelModel extends javax.swing.JFrame {
+
     java.sql.Statement stmt;
     java.sql.ResultSet tamuResultSet;
-    String columnNames[] = new String[]{"NO. ID", "TAMU","KAMAR"};
-
-    
+    String columnNames[] = new String[]{"NO. ID", "TAMU", "KAMAR"};
     //
     private DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-  
+
     /** Creates new form TamuJFrame_Ok */
     public TamuJFrame_TabelModel() {
         initComponents();
-        try{
+        try {
             java.sql.Connection conn = java.sql.DriverManager.getConnection(
-                    "jdbc:odbc:SourceName_OK","root","123");
+                    "jdbc:mysql://localhost/dbhotel", "root", "root");
             this.stmt = conn.createStatement(
                     java.sql.ResultSet.TYPE_SCROLL_SENSITIVE,
                     java.sql.ResultSet.CONCUR_UPDATABLE);
-                    
-                   
-        }catch(java.sql.SQLException e){
+
+
+        } catch (java.sql.SQLException e) {
             System.out.println(e.getMessage());
         }
         refreshResultSet();
@@ -48,60 +46,40 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         idTextField.setEditable(false);
         tamuTextField.setEditable(false);
         kamarTextField.setEditable(false);
-        
-         tamuTable.setModel(model);
+
+        tamuTable.setModel(model);
 
     }
 
-    private void refreshResultSet(){
-        try{
+    private void refreshResultSet() {
+        try {
             this.tamuResultSet = this.stmt.executeQuery(
-                   
-               
-                "SELECT id, nama, kamar FROM hotel") ;
-                
-        }catch(java.sql.SQLException e){
+                    "SELECT idtamu, namatamu, kamar FROM tamu");
+
+        } catch (java.sql.SQLException e) {
             System.out.println(e.getMessage());
         }
 
     }
 
-    private void refreshTable(){
-         String data[]=new String[3];
-      int rowCount = 0;
-      
-        try{
-            tamuResultSet.afterLast();        
-            if(tamuResultSet.previous()){
-                rowCount = tamuResultSet.getRow();   
-            }
-            
+    private void refreshTable() {
+        String data[] = new String[3];
+        try {
             tamuResultSet.beforeFirst();
-            if(tamuResultSet!=null){
-                
-               
-              while (tamuResultSet.next()){      
-                
-                     data[0]= tamuResultSet.getString(1);
-                     data[1]= tamuResultSet.getString(2);
-                     data[2]= tamuResultSet.getString(3);                   
-                     model.addRow(data);      
-     
-              }     
+            if (tamuResultSet != null) {
+                model = new DefaultTableModel(columnNames, 0);  
+                while (tamuResultSet.next()) {
+                    data[0] = tamuResultSet.getString(1);
+                    data[1] = tamuResultSet.getString(2);
+                    data[2] = tamuResultSet.getString(3);
+                    model.addRow(data);
+                }
             }
-           tamuScrollPane.getViewport().remove(tamuTable); 
-           tamuTable.addMouseListener(new java.awt.event.MouseAdapter() {
-             @Override
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                   tamuTableMouseClicked(evt);              
-            }
-            });
-        
-            tamuScrollPane.getViewport().add(tamuTable);
-        }catch(java.sql.SQLException e){
-            JOptionPane.showMessageDialog(this,e.getMessage());
+            tamuTable.setModel(model);
+        } catch (java.sql.SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
-       
+
     }
 
     /** This method is called from within the constructor to
@@ -268,23 +246,23 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
 
     private void tamuTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tamuTableMouseClicked
         int rowNum = this.tamuTable.getSelectedRow();
-        if(rowNum != -1){
-       // Mas yang ini saya ganti jadi gak pake Tabel model lagi, datanya langsung aja 
+        if (rowNum != -1) {
+            // Mas yang ini saya ganti jadi gak pake Tabel model lagi, datanya langsung aja 
             //diambil dari tabel
             this.idTextField.setText((String) tamuTable.getValueAt(rowNum, 0));
             this.tamuTextField.setText((String) tamuTable.getValueAt(rowNum, 1));
             this.kamarTextField.setText((String) tamuTable.getValueAt(rowNum, 2));
-            try{
-                this.tamuResultSet.absolute(rowNum+1);
-            }catch(java.sql.SQLException e){
+            try {
+                this.tamuResultSet.absolute(rowNum + 1);
+            } catch (java.sql.SQLException e) {
                 System.out.println(e.getMessage());
             }
         }
-        
+
     }//GEN-LAST:event_tamuTableMouseClicked
 
     private void insertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertButtonActionPerformed
-        if(this.insertButton.getText().equals("Insert")){
+        if (this.insertButton.getText().equals("Insert")) {
             this.insertButton.setText("Simpan");
             this.editButton.setEnabled(false);
             this.cancelButton.setEnabled(true);
@@ -295,13 +273,13 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.idTextField.setText(null);
             this.tamuTextField.setText(null);
             this.kamarTextField.setText(null);
-            try{
+            try {
                 this.tamuResultSet.moveToInsertRow();
-            }catch(java.sql.SQLException e){
+            } catch (java.sql.SQLException e) {
                 System.out.println(e.getMessage());
-            }            
-        }else{
-            try{
+            }
+        } else {
+            try {
                 this.tamuResultSet.updateString(
                         1, this.idTextField.getText());
                 this.tamuResultSet.updateString(
@@ -309,7 +287,7 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                 this.tamuResultSet.updateString(
                         3, this.kamarTextField.getText());
                 this.tamuResultSet.insertRow();
-            }catch(java.sql.SQLException e){
+            } catch (java.sql.SQLException e) {
                 System.out.println(e.getMessage());
             }
             this.insertButton.setText("Insert");
@@ -324,7 +302,7 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
     }//GEN-LAST:event_insertButtonActionPerformed
 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
-        if(this.editButton.getText().equals("Edit")){
+        if (this.editButton.getText().equals("Edit")) {
             this.editButton.setText("Simpan");
             this.insertButton.setEnabled(false);
             this.cancelButton.setEnabled(true);
@@ -332,8 +310,8 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.tamuTextField.setEditable(true);
             this.kamarTextField.setEditable(true);
 
-        }else{
-            try{
+        } else {
+            try {
                 this.tamuResultSet.updateString(
                         1, this.idTextField.getText());
                 this.tamuResultSet.updateString(
@@ -341,7 +319,7 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                 this.tamuResultSet.updateString(
                         3, this.kamarTextField.getText());
                 this.tamuResultSet.updateRow();
-            }catch(java.sql.SQLException e){
+            } catch (java.sql.SQLException e) {
                 System.out.println(e.getMessage());
             }
             this.editButton.setText("Edit");
@@ -356,10 +334,10 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
     }//GEN-LAST:event_editButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        try{
+        try {
             this.tamuResultSet.deleteRow();
-        }catch(java.sql.SQLException e){
-                    System.out.println(e.getMessage());
+        } catch (java.sql.SQLException e) {
+            System.out.println(e.getMessage());
         }
         this.refreshTable();
 
@@ -369,18 +347,17 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-
     /**
-    * @param args the command line arguments
-    */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 new TamuJFrame_TabelModel().setVisible(true);
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton deleteButton;
@@ -397,5 +374,4 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
     private javax.swing.JTable tamuTable;
     private javax.swing.JTextField tamuTextField;
     // End of variables declaration//GEN-END:variables
-
 }
