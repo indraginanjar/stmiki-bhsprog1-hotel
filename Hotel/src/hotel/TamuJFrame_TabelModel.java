@@ -1,11 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * TamuJFrame_Ok.java
- *
  * Created on Jul 9, 2011, 8:46:47 AM
  */
 package hotel;
@@ -73,6 +66,9 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                     data[1] = tamuResultSet.getString(2);
                     data[2] = tamuResultSet.getString(3);
                     model.addRow(data);
+                    if(model.getRowCount() == 0){
+                        editButton.setEnabled(false);
+                    }
                 }
             }
             tamuTable.setModel(model);
@@ -168,6 +164,7 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         );
 
         editButton.setText("Edit");
+        editButton.setEnabled(false);
         editButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editButtonActionPerformed(evt);
@@ -203,7 +200,7 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(15, Short.MAX_VALUE)
+                .addContainerGap(58, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(42, 42, 42)
@@ -217,11 +214,11 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(tamuScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(10, 10, 10))
+                .addGap(12, 12, 12))
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addComponent(jLabel4)
-                .addContainerGap(250, Short.MAX_VALUE))
+                .addContainerGap(252, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -252,6 +249,7 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.idTextField.setText((String) tamuTable.getValueAt(rowNum, 0));
             this.tamuTextField.setText((String) tamuTable.getValueAt(rowNum, 1));
             this.kamarTextField.setText((String) tamuTable.getValueAt(rowNum, 2));
+            this.editButton.setEnabled(true);
             try {
                 this.tamuResultSet.absolute(rowNum + 1);
             } catch (java.sql.SQLException e) {
@@ -344,7 +342,29 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        // TODO add your handling code here:
+        if (this.editButton.getText().equals("Simpan")) {
+            this.editButton.setText("Edit");
+            this.insertButton.setEnabled(true);
+            this.cancelButton.setEnabled(false);
+            this.idTextField.setEditable(false);
+            this.tamuTextField.setEditable(false);
+            this.kamarTextField.setEditable(false);
+            this.refreshTable();            
+        }else{  // jika bukan edit maka sudah pasti insert yang mesti dibatalkan
+            try{
+                tamuResultSet.moveToCurrentRow();
+            } catch (java.sql.SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            refreshTable();
+            this.insertButton.setText("Insert");
+            this.editButton.setEnabled(true);
+            this.cancelButton.setEnabled(false);
+            this.idTextField.setEditable(false);
+            this.tamuTextField.setEditable(false);
+            this.kamarTextField.setEditable(false);
+            this.editButton.setEnabled(false);
+        }
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**
