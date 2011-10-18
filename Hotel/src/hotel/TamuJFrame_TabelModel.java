@@ -11,6 +11,7 @@ import javax.swing.table.DefaultTableModel;
  * @author Indra Ginanjar
  */
 public class TamuJFrame_TabelModel extends javax.swing.JFrame {
+    private static final long serialVersionUID = 1L;
 
     java.sql.Statement stmt;
     java.sql.ResultSet tamuResultSet;
@@ -304,7 +305,6 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.editButton.setText("Simpan");
             this.insertButton.setEnabled(false);
             this.cancelButton.setEnabled(true);
-            this.idTextField.setEditable(true);
             this.tamuTextField.setEditable(true);
             this.kamarTextField.setEditable(true);
 
@@ -323,10 +323,12 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.editButton.setText("Edit");
             this.insertButton.setEnabled(true);
             this.cancelButton.setEnabled(false);
-            this.idTextField.setEditable(false);
             this.tamuTextField.setEditable(false);
             this.kamarTextField.setEditable(false);
+            int selection = tamuTable.getSelectedRow();
             this.refreshTable();
+            tamuTable.changeSelection(selection, 0, false, false);
+            tamuTableMouseClicked(null);
         }
 
     }//GEN-LAST:event_editButtonActionPerformed
