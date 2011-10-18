@@ -11,12 +11,11 @@ import javax.swing.table.DefaultTableModel;
  * @author Indra Ginanjar
  */
 public class TamuJFrame_TabelModel extends javax.swing.JFrame {
-    private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
     java.sql.Statement stmt;
     java.sql.ResultSet tamuResultSet;
     String columnNames[] = new String[]{"NO. ID", "TAMU", "KAMAR"};
-    //
     private DefaultTableModel model = new DefaultTableModel(columnNames, 0);
 
     /** Creates new form TamuJFrame_Ok */
@@ -61,22 +60,39 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         try {
             tamuResultSet.beforeFirst();
             if (tamuResultSet != null) {
-                model = new DefaultTableModel(columnNames, 0);  
+                model = new DefaultTableModel(columnNames, 0);
                 while (tamuResultSet.next()) {
                     data[0] = tamuResultSet.getString(1);
                     data[1] = tamuResultSet.getString(2);
                     data[2] = tamuResultSet.getString(3);
                     model.addRow(data);
-                    if(model.getRowCount() == 0){
-                        editButton.setEnabled(false);
+                }
+                if (model.getRowCount() == 0) {
+                    editButton.setEnabled(false);
+                    deleteButton.setEnabled(false);
+                }else{
+                    if (tamuTable.getSelectedRow() != -1){
+                        editButton.setEnabled(true);
                     }
+                    deleteButton.setEnabled(true);
                 }
             }
             tamuTable.setModel(model);
+            if (tamuTable.getSelectedRow() == -1) {
+                idTextField.setText(null);
+                tamuTextField.setText(null);
+                kamarTextField.setText(null);
+            }
         } catch (java.sql.SQLException e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
 
+
+    }
+    
+    void setRowSelection(int row){
+        tamuTable.changeSelection(row, 0, false, false);
+        tamuTableMouseClicked(null);  
     }
 
     /** This method is called from within the constructor to
@@ -200,11 +216,14 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jLabel4)
+                .addContainerGap(252, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(58, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(42, 42, 42)
                         .addComponent(insertButton)
                         .addGap(18, 18, 18)
                         .addComponent(editButton)
@@ -216,10 +235,6 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(tamuScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(12, 12, 12))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(jLabel4)
-                .addContainerGap(252, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -228,13 +243,13 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(editButton)
                     .addComponent(cancelButton)
                     .addComponent(insertButton)
                     .addComponent(deleteButton))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addComponent(tamuScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -244,9 +259,8 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
 
     private void tamuTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tamuTableMouseClicked
         int rowNum = this.tamuTable.getSelectedRow();
-        if (rowNum != -1) {
-            // Mas yang ini saya ganti jadi gak pake Tabel model lagi, datanya langsung aja 
-            //diambil dari tabel
+        if (rowNum != -1 && tamuTable.getRowCount() > 0) {
+
             this.idTextField.setText((String) tamuTable.getValueAt(rowNum, 0));
             this.tamuTextField.setText((String) tamuTable.getValueAt(rowNum, 1));
             this.kamarTextField.setText((String) tamuTable.getValueAt(rowNum, 2));
@@ -286,16 +300,17 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
                 this.tamuResultSet.updateString(
                         3, this.kamarTextField.getText());
                 this.tamuResultSet.insertRow();
+                int selectedRow = tamuTable.getRowCount();
+                this.refreshTable();
+                setRowSelection(selectedRow);
             } catch (java.sql.SQLException e) {
                 System.out.println(e.getMessage());
             }
             this.insertButton.setText("Insert");
-            this.editButton.setEnabled(true);
             this.cancelButton.setEnabled(false);
             this.idTextField.setEditable(false);
             this.tamuTextField.setEditable(false);
             this.kamarTextField.setEditable(false);
-            this.refreshTable();
         }
 
     }//GEN-LAST:event_insertButtonActionPerformed
@@ -325,10 +340,9 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.cancelButton.setEnabled(false);
             this.tamuTextField.setEditable(false);
             this.kamarTextField.setEditable(false);
-            int selection = tamuTable.getSelectedRow();
+            int selectedRow = tamuTable.getSelectedRow();            
             this.refreshTable();
-            tamuTable.changeSelection(selection, 0, false, false);
-            tamuTableMouseClicked(null);
+            setRowSelection(selectedRow);
         }
 
     }//GEN-LAST:event_editButtonActionPerformed
@@ -339,8 +353,13 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
         } catch (java.sql.SQLException e) {
             System.out.println(e.getMessage());
         }
+        int selectedRow = tamuTable.getSelectedRow() - 1;
+        if(selectedRow == -1 && tamuTable.getRowCount() > 0){
+            selectedRow = 0;
+        }
         this.refreshTable();
-
+        setRowSelection(selectedRow);
+        
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
@@ -351,22 +370,22 @@ public class TamuJFrame_TabelModel extends javax.swing.JFrame {
             this.idTextField.setEditable(false);
             this.tamuTextField.setEditable(false);
             this.kamarTextField.setEditable(false);
-            this.refreshTable();            
-        }else{  // jika bukan edit maka sudah pasti insert yang mesti dibatalkan
-            try{
+        } else {  // jika bukan edit maka sudah pasti insert yang mesti dibatalkan
+            try {
                 tamuResultSet.moveToCurrentRow();
             } catch (java.sql.SQLException e) {
                 System.out.println(e.getMessage());
             }
-            refreshTable();
             this.insertButton.setText("Insert");
-            this.editButton.setEnabled(true);
             this.cancelButton.setEnabled(false);
             this.idTextField.setEditable(false);
             this.tamuTextField.setEditable(false);
             this.kamarTextField.setEditable(false);
             this.editButton.setEnabled(false);
         }
+        int selectedRow = tamuTable.getSelectedRow();
+        this.refreshTable();
+        setRowSelection(selectedRow);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**
